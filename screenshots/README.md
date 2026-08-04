@@ -11,13 +11,10 @@ they sit alongside the in-game bar rather than against it — see
 The purple segmented bars in the corners are the mod's own UI, which is the right thing for the
 art to lead with.
 
-## ⚠️ `banner.png` has a typo — do not upload as-is
-
-It reads **"Moonlignt Peaks"** in the small gold text above the title. The `h` is missing.
-Confirmed at 3× magnification.
-
-`thumbnail.png` spells it correctly, so only the banner needs regenerating. Everything else
-about the banner is fine — same composition, same palette, same tagline.
+Both spell the game correctly. The first cut of `banner.png` read *"Moonlignt Peaks"* — a
+missing `h`, caught at 3× magnification and re-rendered. **Check that word at zoom on any future
+artwork**; at banner scale it reads as correct to a skimming eye, and it sits directly above the
+mod title where a reviewer's eye lands first.
 
 ## Screenshots still to capture
 

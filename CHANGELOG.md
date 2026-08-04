@@ -19,8 +19,8 @@ The assumption was never tested.
 - Logs once the first time each reason hides it, so "why is nothing showing?" has an answer in
   the log instead of requiring a debug build.
 
-Added the mod page banner and thumbnail. **The banner misspells the game as "Moonlignt Peaks"**
-and needs regenerating before the page goes live; the thumbnail is correct.
+Added the mod page banner and thumbnail. The banner's first cut misspelled the game as
+"Moonlignt Peaks" and has been re-rendered; both are now correct and ready to upload.
 
 ## 1.0.0 — 2026-08-04
 

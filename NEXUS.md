@@ -139,8 +139,5 @@ Ranked by how much each one sells the mod. The first is the only one that is tru
 5. **A rock or ore node**, so it is obvious this is not a trees-only mod.
 6. **The Mod Menu settings page**, which the scene reads as a sign of a well-behaved mod.
 
-`banner.png` and `thumbnail.png` are done and live in [screenshots/](screenshots/).
-
-⚠️ **The banner reads "Moonlignt Peaks"** — missing `h`, confirmed at 3× magnification. The
-thumbnail is correct. Regenerate the banner before the page goes live; misspelling the game's
-own name on your header is the kind of thing the first commenter points out.
+`banner.png` and `thumbnail.png` are done, spell-checked at zoom, and live in
+[screenshots/](screenshots/). Both are ready to upload.
