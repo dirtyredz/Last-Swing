@@ -2,7 +2,8 @@
 
 ## 1.0.1 — 2026-08-04
 
-**Fixes the bar staying on top of the pause menu and other full-screen UI.**
+**Fixes the bar staying on top of the pause menu and other full-screen UI.** Confirmed fixed in
+game.
 
 1.0.0 assumed the bar would gate itself, on the reasoning that `GrabbedItemView` reacts to the
 `"PlayerToolInteractor"` blocker when menus open. It does react — by calling `HideUI()` on the

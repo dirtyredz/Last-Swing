@@ -262,6 +262,9 @@ and the bar sits at `WorldHeight` above the target.
 - The bar appears on the object being swung at, positioned above it, and tracks damage as it
   is chopped. `SwingToolView.Target` is the right hook, and the private overlay canvas
   positions correctly against a moving camera.
+- The swings-remaining text renders in the game's own Gelica, in gold, at the right place.
+- **1.0.1:** the bar is gone the moment the pause menu or any full-screen UI opens, and comes
+  back on close. This is what 1.0.0 got wrong.
 
 ## Not confirmed yet
 
