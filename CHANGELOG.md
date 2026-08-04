@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.0.1 — 2026-08-04
+
+**Fixes the bar staying on top of the pause menu and other full-screen UI.**
+
+1.0.0 assumed the bar would gate itself, on the reasoning that `GrabbedItemView` reacts to the
+`"PlayerToolInteractor"` blocker when menus open. It does react — by calling `HideUI()` on the
+game's own tool UI — but it never clears `isEquipped`, so `ProcessEquippedUpdate` keeps running,
+`SwingToolView.Target` stays resolved behind the menu, and the bar had no reason to disappear.
+The assumption was never tested.
+
+- Every frame, the bar now hides when `PlayerToolInteractor.AllowShowingGridCursor` is false or
+  `Cutscene.IsInCutscene` is true. That property is the same `Blocker` instance
+  `GrabbedItemView` reads, so the bar hides exactly when the game hides its own grid cursor —
+  no list of screens to keep current.
+- It hides immediately rather than fading over `LingerSeconds`. A menu opening should take the
+  bar with it, not leave it dissolving over the UI.
+- Logs once the first time each reason hides it, so "why is nothing showing?" has an answer in
+  the log instead of requiring a debug build.
+
+Added the mod page banner and thumbnail. **The banner misspells the game as "Moonlignt Peaks"**
+and needs regenerating before the page goes live; the thumbnail is correct.
+
 ## 1.0.0 — 2026-08-04
 
 First release. No functional change from 0.2.0 — this is that build, verified in game and

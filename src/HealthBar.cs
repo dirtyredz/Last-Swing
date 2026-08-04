@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Chicken.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -67,10 +68,15 @@ namespace LastSwing
         private Camera cachedCamera;
         private bool warnedNoCamera;
         private bool loggedFirstTarget;
+        private bool loggedSuppressionFailure;
+        private string loggedSuppressionReason;
 
         private void Update()
         {
-            if (!LastSwingPlugin.ShowBar.Value)
+            // Checked every frame rather than on the poll interval, and Clear rather than
+            // Release: a pause menu opening must take the bar with it immediately, not fade it
+            // out over the linger while sitting on top of the UI.
+            if (!LastSwingPlugin.ShowBar.Value || IsSuppressed())
             {
                 Clear();
                 return;
@@ -96,6 +102,75 @@ namespace LastSwing
             // Every frame, not on the poll interval - the camera moves continuously and a
             // 50ms-stale screen position is visible as the bar swimming behind the tree.
             Reposition();
+        }
+
+        /// <summary>
+        /// Whether the game is in a state where no world UI should be on screen — a menu, the
+        /// pause screen, a cutscene, a full-screen window.
+        ///
+        /// <b>This is not optional, and the first version was wrong to think it was.</b> The
+        /// original reasoning was that <c>SwingToolView</c> stops producing targets when the
+        /// player cannot interact, so the bar would gate itself. It does not.
+        /// <c>GrabbedItemView.HandleToolInteractorBlockerChanged</c> only calls
+        /// <c>ShowUI()</c>/<c>HideUI()</c> — it never clears <c>isEquipped</c>, so
+        /// <c>ProcessEquippedUpdate</c> keeps running and <c>Target</c> stays resolved behind an
+        /// open menu. The bar then sat on top of the pause screen.
+        ///
+        /// The gate is the game's own: <c>PlayerToolInteractor.AllowShowingGridCursor</c> is
+        /// <c>cursorVisualBlocker.IsFree</c>, and <c>Blocker</c>'s constructor registers itself
+        /// by name into a static table — so that is the very same blocker
+        /// <c>GrabbedItemView</c> reads via <c>Blocker.Get("PlayerToolInteractor")</c> to decide
+        /// whether its own world UI may show. Asking it directly means this mod hides exactly
+        /// when the game hides its grid cursor, with no list of screens to keep up to date.
+        /// </summary>
+        private bool IsSuppressed()
+        {
+            try
+            {
+                if (!MonoBehaviourSingleton<PlayerView>.Exists)
+                {
+                    return true;
+                }
+
+                if (Cutscene.IsInCutscene)
+                {
+                    return Suppress("cutscene");
+                }
+
+                var toolInteractor = MonoBehaviourSingleton<PlayerView>.Instance.ToolInteractor;
+                if (toolInteractor == null)
+                {
+                    return true;
+                }
+
+                return !toolInteractor.AllowShowingGridCursor && Suppress("the game hid its grid cursor");
+            }
+            catch (Exception e)
+            {
+                // Showing a bar that should be hidden is a cosmetic bug; hiding the whole mod on
+                // a transient error is a functional one. Prefer the former, but say so once.
+                if (!loggedSuppressionFailure)
+                {
+                    loggedSuppressionFailure = true;
+                    LastSwingPlugin.Log.LogWarning(
+                        $"Could not read the game's cursor blocker, so the bar cannot hide itself " +
+                        $"for menus: {e.Message}");
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>Logs the first time each reason suppresses the bar, then stays quiet.</summary>
+        private bool Suppress(string reason)
+        {
+            if (loggedSuppressionReason != reason)
+            {
+                loggedSuppressionReason = reason;
+                LastSwingPlugin.Log.LogInfo($"Health bar hidden: {reason}.");
+            }
+
+            return true;
         }
 
         private void Poll()

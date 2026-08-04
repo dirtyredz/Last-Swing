@@ -3,7 +3,7 @@
 A health bar on the tree, stump or rock you are swinging at — and only while you are swinging
 at it.
 
-**Status:** v1.0.0 — **confirmed working in game.** The bar appears on the right object, at the
+**Status:** v1.0.1 — **confirmed working in game.** The bar appears on the right object, at the
 right moment, and tracks damage as you chop.
 
 What is confirmed is that it works; several specific claims below are still only as good as the
@@ -83,13 +83,39 @@ system, no Harmony patch.** Both of the previous world-UI mods here had to build
 scratch and then reconcile their reach with the game's; this one cannot disagree with the game
 because it is reading the game's own answer.
 
-It carries the gating too. The view only exists while a swing tool is equipped, and
-`GrabbedItemView` stops updating when the `"PlayerToolInteractor"` blocker is set — which is
-what menus, cutscenes and confinement do. So there is no `PlayerCursorInteractionScreen` gate to
-work out, the way Chest Labels needed.
-
 > ⚠️ `SwingToolView.SetTarget` clears `Target` on its null path but leaves `TargetIsInRange`
 > holding its previous value. Read the flag only when `Target` is non-null.
+
+### It does *not* carry the gating, and 1.0.0 shipped believing it did
+
+This section used to claim that because `GrabbedItemView` reacts to the `"PlayerToolInteractor"`
+blocker, the bar would hide itself for menus and no `PlayerCursorInteractionScreen`-style gate
+was needed. **That was wrong, and it was never verified — the bar sat on top of the pause
+screen.**
+
+What actually happens:
+
+```csharp
+private void HandleToolInteractorBlockerChanged() {   // GrabbedItemView
+    if (isEquipped) {
+        if (toolInteractorBlocker.IsFree) ShowUI(); else HideUI();
+    }
+}
+```
+
+It hides *the game's own* tool UI. It never clears `isEquipped`, so `Update` keeps calling
+`ProcessEquippedUpdate`, `SwingToolView` keeps resolving a target behind the open menu, and
+anything reading `Target` keeps getting one.
+
+The fix is to ask the same blocker directly. `PlayerToolInteractor.AllowShowingGridCursor` is
+`cursorVisualBlocker.IsFree`, and `Blocker`'s constructor registers itself by name into a static
+table — so it is the very same object `GrabbedItemView` fetches with
+`Blocker.Get("PlayerToolInteractor")`. Reading it means this mod hides exactly when the game
+hides its own grid cursor, with no list of screens to maintain. `Cutscene.IsInCutscene` covers
+the remaining case.
+
+**The general lesson, which cost a released version:** a component reacting to a blocker is not
+the same as that component going quiet. Check what the handler actually does.
 
 ### Reading the damage
 
