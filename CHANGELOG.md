@@ -2,7 +2,9 @@
 
 ## 0.2.0 — 2026-08-04
 
-Still not verified in game; 0.1.0 was never run.
+**First build run in game, and it works** — the bar appears on the object being swung at and
+tracks damage as it is chopped. 0.1.0 was never run. Save-safety and the full-tree off-by-one
+are still unconfirmed; see the README.
 
 - **The bar now stays hidden until a hit lands on the target**, and this is the default
   (`RequireHitFirst`). Aiming at a half-chopped tree shows nothing — arming compares damage

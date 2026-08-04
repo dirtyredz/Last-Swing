@@ -3,9 +3,12 @@
 A health bar on the tree, stump or rock you are swinging at — and only while you are swinging
 at it.
 
-**Status:** v0.2.0 — builds and deploys. **Nothing has been verified in game yet.** Every claim
-below about behaviour comes from the decompiled assembly, not from a run. The open questions at
-the bottom are the ones a single session answers.
+**Status:** v0.2.0 — **confirmed working in game.** The bar appears on the right object, at the
+right moment, and tracks damage as you chop.
+
+Unpublished. What is confirmed is that it works; several specific claims below are still only
+as good as the decompile they came from, and the ones that would change the mod are listed
+under [Not confirmed yet](#not-confirmed-yet).
 
 **Nexus title:** `Last Swing - Health Bars for Trees and Rocks`
 
@@ -228,24 +231,36 @@ questions:
 Running both is fine. If both are visible at once the hover panel sits where Plant Peek puts it
 and the bar sits at `WorldHeight` above the target.
 
-## Not verified yet
+## Confirmed in game
 
-Ranked by how much they would change the mod.
+- The bar appears on the object being swung at, positioned above it, and tracks damage as it
+  is chopped. `SwingToolView.Target` is the right hook, and the private overlay canvas
+  positions correctly against a moving camera.
 
-1. **Does the bar appear at all, and on the right thing?** Everything else is downstream.
-2. **`DamagePersistence.DayRegeneratedLast` exists and nothing found so far writes it.** If
+## Not confirmed yet
+
+Still open. Ranked by how much they would change the mod, and **the first two are the ones
+that gate a Nexus release** — see [TESTING.md](TESTING.md) for how to run them.
+
+1. **Nothing is written to the save.** TESTING.md §6: back up a save, aim at a lot of trees and
+   rocks without hitting any, sleep, reload, diff. The mod claims *save-safe* on its page and
+   that claim needs the diff behind it, not just an audit of the source. The whole
+   `TryGetByGuid`-never-`FindOrCreate` discipline exists for this.
+2. **The full tree falls exactly as the bar empties, not one swing after.** TESTING.md §3. This
+   is the `ChopTreeGridComponent` off-by-one, and it is the one bug a player would notice
+   immediately and rate the mod down for. Small trees, stumps and rocks all use the ordinary
+   `>=` rule and would not catch it.
+3. **`DamagePersistence.DayRegeneratedLast` exists and nothing found so far writes it.** If
    damage regenerates overnight, a partial chop resets. The bar reads live so it will be
    correct either way, but the Nexus page has to say so. Find the writer.
-3. **Do ethereal tools route through `SwingToolView`?** `EtherealAxesToolView` and
+4. **Do ethereal tools route through `SwingToolView`?** `EtherealAxesToolView` and
    `EtherealPickaxesToolView` are separate types. If they do not share the swing view, they
    need a second target source — and Better Ethereal Tools is a popular mod.
-4. **Is `healthTree + 1` or the `DamageTakenRequirement` the binding gate in practice?** The
+5. **Is `healthTree + 1` or the `DamageTakenRequirement` the binding gate in practice?** The
    code takes the max of both, which is right either way, but knowing which one actually binds
    would let the comment stop hedging.
-5. **Does the bar sit at a sensible height on a full-size tree?** `WorldHeight` is anchored to
-   the component transform, which is the trunk base, not the canopy.
-6. **Does it survive a room change?** The canvas is `DontDestroyOnLoad`; the cached camera and
-   swing view are both validated before use, but that is untested.
+6. **Does it survive a room change and a save reload?** The canvas is `DontDestroyOnLoad`; the
+   cached camera and swing view are both validated before use, but that is untested.
 
 ## Layout
 
