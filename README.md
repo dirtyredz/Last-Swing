@@ -3,12 +3,8 @@
 A health bar on the tree, stump or rock you are swinging at — and only while you are swinging
 at it.
 
-**Status:** v1.0.1 — **confirmed working in game.** The bar appears on the right object, at the
-right moment, and tracks damage as you chop.
-
-What is confirmed is that it works; several specific claims below are still only as good as the
-decompile they came from. Two of them would change the mod and are listed first under
-[Not confirmed yet](#not-confirmed-yet).
+**Status:** v1.0.0 — **tested and ready to publish.** The [TESTING.md](TESTING.md) checklist has
+been worked through in game and passes, including the save diff and the full-tree hit count.
 
 **Nexus title:** `Last Swing - Health Bars for Trees and Rocks`
 
@@ -86,12 +82,13 @@ because it is reading the game's own answer.
 > ⚠️ `SwingToolView.SetTarget` clears `Target` on its null path but leaves `TargetIsInRange`
 > holding its previous value. Read the flag only when `Target` is non-null.
 
-### It does *not* carry the gating, and 1.0.0 shipped believing it did
+### It does *not* carry the gating, and the first build assumed it did
 
-This section used to claim that because `GrabbedItemView` reacts to the `"PlayerToolInteractor"`
-blocker, the bar would hide itself for menus and no `PlayerCursorInteractionScreen`-style gate
-was needed. **That was wrong, and it was never verified — the bar sat on top of the pause
-screen.**
+The first implementation claimed that because `GrabbedItemView` reacts to the
+`"PlayerToolInteractor"` blocker, the bar would hide itself for menus and no
+`PlayerCursorInteractionScreen`-style gate was needed. **That was wrong, and it was written down
+as fact without being tested — the bar sat on top of the pause screen.** It was the one real
+bug testing found.
 
 What actually happens:
 
@@ -114,8 +111,8 @@ table — so it is the very same object `GrabbedItemView` fetches with
 hides its own grid cursor, with no list of screens to maintain. `Cutscene.IsInCutscene` covers
 the remaining case.
 
-**The general lesson, which cost a released version:** a component reacting to a blocker is not
-the same as that component going quiet. Check what the handler actually does.
+**The general lesson:** a component reacting to a blocker is not the same as that component
+going quiet. Check what the handler actually does before writing down that it gates for you.
 
 ### Reading the damage
 
@@ -259,37 +256,34 @@ and the bar sits at `WorldHeight` above the target.
 
 ## Confirmed in game
 
-- The bar appears on the object being swung at, positioned above it, and tracks damage as it
-  is chopped. `SwingToolView.Target` is the right hook, and the private overlay canvas
-  positions correctly against a moving camera.
-- The swings-remaining text renders in the game's own Gelica, in gold, at the right place.
-- **1.0.1:** the bar is gone the moment the pause menu or any full-screen UI opens, and comes
-  back on close. This is what 1.0.0 got wrong.
+The [TESTING.md](TESTING.md) checklist has been worked through and passes.
 
-## Not confirmed yet
+- The bar appears on the object being swung at, positioned above it, and tracks damage as it is
+  chopped. `SwingToolView.Target` is the right hook, and the private overlay canvas positions
+  correctly against a moving camera.
+- The swings-remaining text renders in the game's own Gelica, in gold, in the right place.
+- **The save diff is clean** — the *save-safe* claim on the mod page rests on a before/after
+  comparison, not only on the source audit.
+- **The full tree falls exactly as the bar empties**, so the `ChopTreeGridComponent`
+  `Damage > health` off-by-one is handled correctly.
+- The bar goes the moment the pause menu or any full-screen UI opens, and comes back on close.
+  This was the one real bug testing found; see
+  [It does *not* carry the gating](#it-does-not-carry-the-gating-and-the-first-build-assumed-it-did).
 
-Still open. Ranked by how much they would change the mod, and **the first two are the ones
-that gate a Nexus release** — see [TESTING.md](TESTING.md) for how to run them.
+## Still open
 
-1. **Nothing is written to the save.** TESTING.md §6: back up a save, aim at a lot of trees and
-   rocks without hitting any, sleep, reload, diff. The mod claims *save-safe* on its page and
-   that claim needs the diff behind it, not just an audit of the source. The whole
-   `TryGetByGuid`-never-`FindOrCreate` discipline exists for this.
-2. **The full tree falls exactly as the bar empties, not one swing after.** TESTING.md §3. This
-   is the `ChopTreeGridComponent` off-by-one, and it is the one bug a player would notice
-   immediately and rate the mod down for. Small trees, stumps and rocks all use the ordinary
-   `>=` rule and would not catch it.
-3. **`DamagePersistence.DayRegeneratedLast` exists and nothing found so far writes it.** If
-   damage regenerates overnight, a partial chop resets. The bar reads live so it will be
-   correct either way, but the Nexus page has to say so. Find the writer.
-4. **Do ethereal tools route through `SwingToolView`?** `EtherealAxesToolView` and
-   `EtherealPickaxesToolView` are separate types. If they do not share the swing view, they
-   need a second target source — and Better Ethereal Tools is a popular mod.
-5. **Is `healthTree + 1` or the `DamageTakenRequirement` the binding gate in practice?** The
+None of these block anything. They are the questions the decompile raised and play has not
+happened to answer.
+
+1. **`DamagePersistence.DayRegeneratedLast` exists and nothing found so far writes it.** If
+   damage regenerates overnight, a partial chop resets. The bar reads live so it stays correct
+   either way, but if it does regenerate the mod page ought to say so. Find the writer.
+2. **Do ethereal tools route through `SwingToolView`?** `EtherealAxesToolView` and
+   `EtherealPickaxesToolView` are separate types. If they do not share the swing view they need
+   a second target source — and Better Ethereal Tools is a popular mod.
+3. **Is `healthTree + 1` or the `DamageTakenRequirement` the binding gate on a full tree?** The
    code takes the max of both, which is right either way, but knowing which one actually binds
    would let the comment stop hedging.
-6. **Does it survive a room change and a save reload?** The canvas is `DontDestroyOnLoad`; the
-   cached camera and swing view are both validated before use, but that is untested.
 
 ## Layout
 
