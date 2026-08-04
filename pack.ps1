@@ -57,4 +57,32 @@ Compress-Archive -Path (Join-Path $staging 'BepInEx') -DestinationPath $archive
 Remove-Item $staging -Recurse -Force
 
 Write-Host "Created $archive"
+
+# Convenience for the author's machine only.
+#
+# This mod used to live inside the notes repo alongside its siblings, whose pack scripts all
+# write to one shared dist/ two levels up. Splitting it into its own repo moved the archive
+# inside the mod folder - correct for a standalone repo, which has no business writing outside
+# itself, but it breaks the habit of finding every mod's zip in one place.
+#
+# So: drop a second copy there, but only when this checkout is sitting in that layout. The
+# guard is that the parent folder is literally named "mods" and a dist/ already exists beside
+# it. Neither is true for someone who clones this repo on its own, so they get the standalone
+# behaviour and nothing is created behind their back.
+$parent = Split-Path -Parent $modRoot
+if ((Split-Path -Leaf $parent) -eq 'mods') {
+    $sharedDist = Join-Path (Split-Path -Parent $parent) 'dist'
+
+    if ((Test-Path $sharedDist) -and ((Resolve-Path $sharedDist).Path -ne (Resolve-Path $dist).Path)) {
+        try {
+            Copy-Item $archive $sharedDist -Force
+            Write-Host "Also copied to $sharedDist"
+        }
+        catch {
+            # A convenience copy failing must not fail the pack - the real archive already exists.
+            Write-Warning "Could not copy to $sharedDist : $($_.Exception.Message)"
+        }
+    }
+}
+
 Write-Host 'Extract it over the game folder to install.'
