@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.0 — 2026-08-04
+
+First release. No functional change from 0.2.0 — this is that build, verified in game and
+versioned for publication.
+
+- Repo layout flattened: `src/*.cs` with `Directory.Build.props` at the root.
+- `NEXUS.md` added with the mod page copy and the screenshot list.
+
+**Known unverified at release**, both listed in the README and reproducible from `TESTING.md`:
+
+- The save-diff test (§6) has not been run. The save-safe claim rests on a source audit — no
+  `FindOrCreate` on any path — rather than on a before/after comparison.
+- The full-tree off-by-one (§3) has not been observed directly. `ChopTreeGridComponent` dies on
+  `Damage > health` where the other three types use `>=`, and the threshold takes the max of
+  that and the grow-stage `DamageTakenRequirement`. Correct by construction, unconfirmed by
+  play.
+
 ## 0.2.0 — 2026-08-04
 
 **First build run in game, and it works** — the bar appears on the object being swung at and

@@ -3,12 +3,12 @@
 A health bar on the tree, stump or rock you are swinging at — and only while you are swinging
 at it.
 
-**Status:** v0.2.0 — **confirmed working in game.** The bar appears on the right object, at the
+**Status:** v1.0.0 — **confirmed working in game.** The bar appears on the right object, at the
 right moment, and tracks damage as you chop.
 
-Unpublished. What is confirmed is that it works; several specific claims below are still only
-as good as the decompile they came from, and the ones that would change the mod are listed
-under [Not confirmed yet](#not-confirmed-yet).
+What is confirmed is that it works; several specific claims below are still only as good as the
+decompile they came from. Two of them would change the mod and are listed first under
+[Not confirmed yet](#not-confirmed-yet).
 
 **Nexus title:** `Last Swing - Health Bars for Trees and Rocks`
 
