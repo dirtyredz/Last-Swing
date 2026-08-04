@@ -18,7 +18,7 @@ $ErrorActionPreference = 'Stop'
 # form back in here.
 $modRoot  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = $modRoot
-$project  = Join-Path $modRoot 'src\LastSwing\LastSwing.csproj'
+$project  = Join-Path $modRoot 'src\LastSwing.csproj'
 
 # Single source of truth for the version, so the archive can never disagree with the DLL.
 $version = ([xml](Get-Content $project)).Project.PropertyGroup.Version | Where-Object { $_ }
@@ -26,7 +26,7 @@ if (-not $version) { throw "Could not read <Version> from $project" }
 
 # The version is reported to players twice; a mismatch means an archive that lies about what
 # is inside it.
-$pluginSource = Get-Content (Join-Path $modRoot 'src\LastSwing\Plugin.cs') -Raw
+$pluginSource = Get-Content (Join-Path $modRoot 'src\Plugin.cs') -Raw
 if ($pluginSource -notmatch 'PluginVersion\s*=\s*"([^"]+)"') { throw 'Could not read PluginVersion from Plugin.cs' }
 $pluginVersion = $Matches[1]
 if ($pluginVersion -ne $version) {
@@ -39,7 +39,7 @@ Write-Host "Packing Last Swing $version"
 dotnet build $project -c Release -p:SkipDeploy=true
 if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
 
-$dll = Join-Path $modRoot 'src\LastSwing\bin\Release\netstandard2.1\LastSwing.dll'
+$dll = Join-Path $modRoot 'src\bin\Release\netstandard2.1\LastSwing.dll'
 if (-not (Test-Path $dll)) { throw "Built DLL not found at $dll" }
 
 $staging = Join-Path $env:TEMP "LastSwing-pack-$([guid]::NewGuid().ToString('N'))"

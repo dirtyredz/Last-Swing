@@ -265,16 +265,18 @@ that gate a Nexus release** — see [TESTING.md](TESTING.md) for how to run them
 ## Layout
 
 ```
-src/LastSwing/
-  Plugin.cs        BepInEx entry point and config
-  SwingTarget.cs   what the equipped tool is aimed at
-  DamageReader.cs  the four component types -> damage and threshold
-  HealthBar.cs     polling, drawing and positioning
-  BarSprite.cs     runtime-generated rounded shapes
-  GamePalette.cs   shared, plus this mod's three bar states
-  GameFonts.cs     shared, copied verbatim
-pack.ps1           release archive
-TESTING.md         manual verification checklist
+src/
+  LastSwing.csproj  the only project
+  Plugin.cs         BepInEx entry point and config
+  SwingTarget.cs    what the equipped tool is aimed at
+  DamageReader.cs   the four component types -> damage and threshold
+  HealthBar.cs      polling, drawing and positioning
+  BarSprite.cs      runtime-generated rounded shapes
+  GamePalette.cs    shared, plus this mod's three bar states
+  GameFonts.cs      shared, copied verbatim
+Directory.Build.props  the game path, set once
+pack.ps1               release archive
+TESTING.md             manual verification checklist
 ```
 
 `GamePalette.cs` and `GameFonts.cs` are copies shared with
@@ -286,10 +288,10 @@ all copies.
 Requires the .NET SDK and a local copy of Moonlight Peaks with BepInEx 5 installed.
 
 ```bash
-dotnet build src/LastSwing/LastSwing.csproj
+dotnet build src/LastSwing.csproj
 ```
 
-The game path is set once in [`src/Directory.Build.props`](src/Directory.Build.props) and
+The game path is set once in [`Directory.Build.props`](Directory.Build.props) and
 defaults to the usual Steam location — **edit it if yours differs.** Nothing is fetched from
 NuGet; every reference resolves against the game's own `Managed` folder, and none of those
 assemblies are copied next to the plugin.
