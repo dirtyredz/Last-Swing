@@ -3,8 +3,9 @@
 A health bar on the tree, stump or rock you are swinging at — and only while you are swinging
 at it.
 
-**Status:** v1.0.0 — **tested and ready to publish.** The [TESTING.md](TESTING.md) checklist has
-been worked through in game and passes, including the save diff and the full-tree hit count.
+**Status:** 🚀 **Published** — v1.0.0 live on Nexus as
+[mod 122](https://www.nexusmods.com/moonlightpeaks/mods/122). The [TESTING.md](TESTING.md)
+checklist was worked through in game and passes, including the save diff and the full-tree hit count.
 
 **Nexus title:** `Last Swing - Health Bars for Trees and Rocks`
 
