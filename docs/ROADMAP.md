@@ -9,10 +9,11 @@ opportunistic. Phases below are "if/when", not scheduled.
   Re-run the [`TESTING.md`](../TESTING.md) killing-blow checklist for rocks/ore, then decide on a
   1.0.1 release. Do **not** publish until verified in game.
 
-## Next — structural, when the area is touched
+## Next — structural
 
-- **Split `HealthBar` into controller + `HealthBarView`** (P1). Trigger this the next time the
-  drawing/lifecycle code is changed, rather than as a standalone edit. See [BACKLOG](BACKLOG.md).
+- ✅ **Split `HealthBar` into controller + `HealthBarView`** — done 2026-08-22.
+- **De-leak `Target.DestructibleSource`** (P2) — do it when the WIP kill-frame path is next verified
+  in game; unverifiable without a run. See [BACKLOG](BACKLOG.md).
 
 ## Later — investigations that could open features
 

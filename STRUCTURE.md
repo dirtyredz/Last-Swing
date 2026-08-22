@@ -23,7 +23,8 @@ Plugin `.cs` files are flat in `src/` (workspace convention — no `src/LastSwin
 | [`src/Plugin.cs`](src/Plugin.cs) | Composition root. BepInEx entry point; binds ~17 `ConfigEntry` settings; adds the `HealthBar` component. | everything (correct direction) |
 | [`src/SwingTarget.cs`](src/SwingTarget.cs) | *What* the equipped tool is aimed at. Resolves `SwingToolView.Target`, per-swing damage, and the can-damage test. Static. | game types |
 | [`src/DamageReader.cs`](src/DamageReader.cs) | *How much* damage a target has taken / can take. Normalizes the game's **4 damageable component types** (no shared interface) into one `Target` DTO, via cached reflection. Static. | game types |
-| [`src/HealthBar.cs`](src/HealthBar.cs) | The runtime loop. `MonoBehaviour` owning: per-frame `Update`, 50 ms poll, the arming state machine, target-loss/linger/fade, drawing (segments + colour ramp + label), `WorldToScreenPoint` positioning, camera resolution, and one-time canvas construction. | `SwingTarget`, `DamageReader`, `BarSprite`, `GamePalette`, `GameFonts`, plugin config |
+| [`src/HealthBar.cs`](src/HealthBar.cs) | **Controller.** `MonoBehaviour` owning the runtime loop: per-frame `Update`, 50 ms poll, the arming state machine, target-loss/linger/fade timing, and the menu/cutscene gate. Decides *when* the bar shows, *what* it shows, and *where* — hands each to the view. Owns no GameObjects. | `SwingTarget`, `DamageReader`, `HealthBarView`, plugin config |
+| [`src/HealthBarView.cs`](src/HealthBarView.cs) | **View.** Plain class owning every GameObject the bar is made of: one-time canvas construction, drawing (segments + colour ramp + label), `WorldToScreenPoint` projection, and camera resolution. Knows nothing about polling/arming/timing. | `BarSprite`, `GamePalette`, `GameFonts`, `SwingTarget`, plugin config |
 | [`src/BarSprite.cs`](src/BarSprite.cs) | Runtime-generated rounded 9-sliced sprites (no shipped art). Static. | Unity |
 | [`src/GamePalette.cs`](src/GamePalette.cs) | The game's colours + this mod's 5 bar states. **Verbatim shared copy** across sibling mods. | Unity |
 | [`src/GameFonts.cs`](src/GameFonts.cs) | Locates the game's Gelica font/material by name. **Verbatim shared copy** across sibling mods. | Unity, TMP |
@@ -46,25 +47,24 @@ coupling, but acceptable for a single-component, single-plugin mod with no test 
 ## Structural debt
 
 The 2026-08-22 full review found **no P0** issues. The structure is sound for a mod this size:
-target discovery, damage reading, sprite generation, and config binding are already separated, so
-`HealthBar` — though the largest file — is **not** a true God class. Open items, triaged in
-[docs/BACKLOG.md](docs/BACKLOG.md):
+target discovery, damage reading, sprite generation, and config binding are already separated.
+Open items, triaged in [docs/BACKLOG.md](docs/BACKLOG.md):
 
-- **P1 — `HealthBar.cs` fuses controller + view (726 lines).** It owns both the poll/arm/linger
-  state machine *and* the entire Unity view (canvas construction, drawing, projection, camera).
-  Extract a concrete `HealthBarView` (a plain class holding the canvas refs), leaving `HealthBar`
-  as the lifecycle/controller. All three reviewers agreed: worth doing **when this area is next
-  touched** (especially before the rocks-after-grid WIP grows the file further, or before adopting
-  `GameWorldUIScreen`) — but *not* a standalone change on shipped code, since it moves
-  lifecycle-sensitive Unity code with no automated verification seam. It also sits ~75 lines under
-  the 800-line tripwire, so the next feature here should trigger the split rather than push past it.
 - **P2 — `Target.DestructibleSource` leaks a concrete `DestructibleView`** into `HealthBar` so a
   rock's killing blow can be detected after it leaves the grid. Codex flags it as a leaky DTO;
   the abstraction lens judged it justified (one documented purpose, one caller). Deferred — the
-  rock/ore kill-frame path is subtle and under active WIP; revisit alongside the P1 split.
+  rock/ore kill-frame path is subtle and under active WIP, and can't be verified without a game
+  run; revisit when that WIP is verified in game.
 - **P2 — `GameFonts.Search` repeats a name-search loop 3×.** A `FindByName<T>` helper would fold
   it, but the file is a verbatim cross-mod copy — any fix must land in all copies via the workspace
   sync tool, out of scope for this repo alone.
 
-Fixed in the review pass: the duplicated segment `RectTransform` setup in `HealthBar.Draw` is now a
-single `PlaceSegment` helper.
+**Resolved in the 2026-08-22 review pass:**
+
+- ✅ **P1 — split `HealthBar` into controller + view.** The 726-line file that fused the
+  poll/arm/linger state machine with the whole Unity view is now
+  [`HealthBar.cs`](src/HealthBar.cs) (377 lines, controller) +
+  [`HealthBarView.cs`](src/HealthBarView.cs) (408 lines, view). Behaviour-preserving; build
+  verified.
+- ✅ Duplicated segment `RectTransform` setup folded into a single `PlaceSegment` helper (now in
+  the view).

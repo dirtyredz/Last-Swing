@@ -10,24 +10,24 @@ _None._
 
 ## P1
 
-- **Split `HealthBar.cs` into controller + `HealthBarView`.** 726 lines fusing the
-  poll/arm/linger state machine with the whole Unity view (canvas construction, `Draw`, projection,
-  camera). Extract a plain `HealthBarView` class owning the canvas fields + `EnsureUi`/`Draw`/
-  `Reposition`; keep `HealthBar : MonoBehaviour` as lifecycle/controller. **Trigger:** do it the
-  next time this area is edited — before the rocks-after-grid WIP grows the file, or before adopting
-  `GameWorldUIScreen`. Not a standalone change on shipped code (moves lifecycle-sensitive Unity code
-  with no test seam). Re-run [`TESTING.md`](../TESTING.md) after.
+_None open._ (The `HealthBar` controller/view split — the standing P1 — is done; see Done below.)
 
 ## P2
 
 - **De-leak `Target.DestructibleSource`.** Replace the exposed `DestructibleView` with a semantic
   property (e.g. `HasBecomeDestructed`) and have the view take a `forceEmpty` render flag instead of
-  `HealthBar` synthesizing a mutable `Target`. Do it alongside the P1 split; the rock/ore kill-frame
-  path is subtle and under WIP, so re-run the killing-blow checklist. (Reviewers split on whether
-  this is a real leak — low urgency.)
+  `HealthBar` synthesizing a mutable `Target`. **Held:** reviewers split on whether it's a real
+  leak, and it touches the rock/ore kill-frame path — subtle, under WIP, and unverifiable without a
+  game run. Do it when that WIP is next verified in game, and re-run the killing-blow checklist.
 - **Fold `GameFonts.Search`'s 3 name-search loops** into a `FindByName<T>` helper. Blocked on the
   cross-mod sync: `GameFonts.cs` is a verbatim copy shared with Chest Labels / Plant Peek, so the
   fix belongs in the workspace canonical + all copies, not here alone.
+
+## Done
+
+- ✅ **Split `HealthBar` into controller + `HealthBarView`** (2026-08-22). 726-line file → controller
+  `HealthBar.cs` (377) + view `HealthBarView.cs` (408). Behaviour-preserving, build verified.
+- ✅ **`PlaceSegment` helper** — deduped the segment `RectTransform` setup in the draw path.
 
 ## Open questions (from the decompile, not yet answered by play)
 

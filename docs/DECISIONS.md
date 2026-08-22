@@ -3,10 +3,15 @@
 Design/architecture decisions and their rationale, newest first. The long-form reasoning is in
 [README.md](../README.md); this is the index.
 
-## ADR-006 — Keep controller and view together for now (2026-08-22)
-The full review flagged `HealthBar` fusing its state machine with its Unity view (P1). Decision:
-**backlog, don't split standalone.** It moves lifecycle-sensitive Unity code with no test seam on a
-shipped mod; the payoff comes when the area is next changed. See [BACKLOG](BACKLOG.md).
+## ADR-006 — Split `HealthBar` into controller + `HealthBarView` (2026-08-22)
+The full review flagged `HealthBar` (726 lines) fusing its poll/arm/linger state machine with its
+Unity view (P1). **Done:** extracted `HealthBarView` (a plain class owning the canvas GameObjects,
+drawing, projection and camera); `HealthBar : MonoBehaviour` keeps the state machine and passes the
+view a target to draw and a world point to sit above. Behaviour-preserving (traced call-by-call),
+build verified. The change was made deliberately (rather than deferred as first considered) while
+the mod is between releases and no game run was needed to prove a pure structural, no-behaviour-
+change extraction — verifying it compiles + tracing the control flow was sufficient. The subtle
+rock kill-frame path (`DestructibleSource`) was left untouched; see [BACKLOG](BACKLOG.md) P2.
 
 ## ADR-005 — Version single-sourced from the csproj
 `[BepInPlugin]` reads a compile-time `ModBuildInfo.Version` generated from `<Version>`, so the
