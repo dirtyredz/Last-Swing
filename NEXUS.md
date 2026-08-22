@@ -1,11 +1,17 @@
 # Nexus Page Copy
 
-Paste-ready copy for the mod page, plus the shot list.
+> **Pasting into the upload form? Use [nexus-paste.md](nexus-paste.md), not this file.**
+> The copy here is wrapped for reading, and the editor turns every wrap into a `<br>`.
+> That is exactly how this mod's live page ended up with 77 of them and no lists at all.
+> See [13-nexus-page-standard.md](../../13-nexus-page-standard.md).
+
+Reference copy for the mod page, plus the shot list.
 
 **Name:** `Last Swing - Health Bars for Trees and Rocks`
 **Category:** User Interface
 **Tags:** Quality of Life, Utilities for Players
-**Requirements:** BepInEx 5.4.23.5
+**Requirements:** BepInEx 5 (win_x64), 5.4.23.5 or newer
+**Nexus page:** [mod 122](https://www.nexusmods.com/moonlightpeaks/mods/122)
 
 ---
 
@@ -51,23 +57,25 @@ faster, tools do not hit harder, nothing is made cheaper. Comfort, not a cheat.
 
 ## Field: Installation instructions
 
-With Vortex: open the Files tab, click the Vortex button, enable it. Done.
+**With Vortex**
 
-Manually:
+Open the Files tab, click the Vortex button, and enable the mod. Done.
 
-1. Install BepInEx 5 for Moonlight Peaks if you have not already, and run the game once so it
-   creates its folders.
-2. Download the archive from the Files tab.
-3. Extract it over your Moonlight Peaks folder. The DLL should end up at
-   `Moonlight Peaks/BepInEx/plugins/LastSwing/LastSwing.dll`.
+**Manually**
+
+1. Install BepInEx 5 (win_x64) into your Moonlight Peaks folder if you have not already. The
+   BepInEx folder sits beside Moonlight Peaks.exe.
+2. Launch the game once, then quit, so it creates the `BepInEx/plugins` folder.
+3. Download the archive from the Files tab and extract it over your Moonlight Peaks folder.
+   The file should end up at `Moonlight Peaks/BepInEx/plugins/LastSwing/LastSwing.dll`.
 4. Launch the game.
+
+Settings live in `BepInEx/config/com.dirtyredz.moonlightpeaks.lastswing.cfg`, written on first
+launch. With **Mod Nook** installed you never need to open it: every setting appears under
+**Pause > Mod Nook**, and changes apply immediately without a restart.
 
 To uninstall, delete the `BepInEx/plugins/LastSwing` folder. That is all — there are no save
 edits to undo.
-
-Settings live in `BepInEx/config/com.dirtyredz.moonlightpeaks.lastswing.cfg`, written on first
-launch. If you have Mod Menu installed you never need to open it: everything appears in the
-pause menu under Mods, and changes apply immediately without a restart.
 
 ## Field: Main features
 
@@ -91,13 +99,23 @@ pause menu under Mods, and changes apply immediately without a restart.
 
 ## Field: Requirements
 
-- BepInEx 5.4.23.5
+**Required**
+
+- BepInEx 5 (win_x64), version 5.4.23.5 or newer
 - Moonlight Peaks, tested on the current build as of 4 August 2026
 
-Optional, but it makes life easier:
+**Recommended companion**
 
-- Mod Menu by Elsiabeth — adds a Mods button to the pause menu so you can change every setting
-  in game instead of editing a config file.
+- **Mod Nook** — my in-game settings menu. Last Swing's colour thresholds are the case for it:
+  pick the yellow and red from a palette with a live preview instead of typing hex into a
+  file, and set bar width, thickness and opacity on sliders that cannot go out of range.
+  Nothing here needs it. https://www.nexusmods.com/moonlightpeaks/mods/127
+- **Mod Menu** by Elsiabeth does the same job and is also supported. Mod Nook and Mod Menu can
+  both be installed — each adds its own button and neither interferes with the other.
+
+PC/Steam only. The Switch and mobile builds cannot load BepInEx.
+
+**Compatibility**
 
 No other mods are needed and none are known to conflict. Plant Peek in particular sits
 alongside it happily: that one tells you how a crop is doing when you hover it, this one tells
@@ -110,13 +128,14 @@ not.
   Harmony patch at all, because the game already exposes everything it wants — the object your
   tool is aimed at is public, and so is the damage on every tree and rock. That is not luck,
   that is a tidy codebase.
+- The BepInEx and HarmonyX teams, without whom none of this scene exists.
 - MissLarifari1, whose Barn Butler page framed its mod as "comfort, not a cheat". That is the
   right test for a mod in a cozy game and I have borrowed the framing outright.
 - Elsiabeth, for Mod Menu. It is the reason this mod ships with no hotkey to remember and no
   config file you are obliged to open.
 - Far Sight, for stating plainly on its page that it changes nothing in your save. More mod
   pages should be that clear about it.
-- The BepInEx team.
+- My Mate, for being my inspiration.
 
 ## Field: Version
 

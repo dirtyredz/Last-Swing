@@ -33,6 +33,14 @@ namespace LastSwing
             /// <summary>Component type name, for logging only.</summary>
             internal string Kind;
 
+            /// <summary>
+            /// Set only when <see cref="Kind"/> is <c>DestructibleView</c> (rocks/ore). Lets the
+            /// caller keep checking <c>IsDestructed</c> directly by reference after the object
+            /// has dropped off the grid and <c>SwingTarget.Find</c> can no longer see it - see
+            /// the note on <c>DamageReader.ReadDestructible</c>.
+            /// </summary>
+            internal DestructibleView DestructibleSource;
+
             /// <summary>Damage still to be dealt. Never negative.</summary>
             internal int Remaining => Mathf.Max(0, Threshold - Damage);
 
@@ -113,11 +121,13 @@ namespace LastSwing
         /// </summary>
         private static Target ReadDestructible(DestructibleView view)
         {
-            if (view.IsDestructed)
-            {
-                return null;
-            }
-
+            // Deliberately not gating on view.IsDestructed. Decompiling DestructibleView.Hit()
+            // shows it flips IsDestructed to true synchronously, in the same call that applies
+            // the killing blow's damage - so a check here would throw the Remaining-hits-0
+            // frame away before the bar ever got to draw it, on every rock and ore node.
+            // GridObjectPersistence is not cleared until the separate Delete() call, which
+            // happens later once the object actually leaves the grid, so reading through it
+            // here is still safe and gives the bar one real empty frame.
             var addon = view.GridObjectPersistence?.ItemAsset?.DestructibleAddon;
             if (addon == null)
             {
@@ -131,6 +141,7 @@ namespace LastSwing
                 // Hit() tests IsAlive/IsDead, so it dies on Damage >= TotalHealthPoints.
                 Threshold = addon.TotalHealthPoints,
                 Kind = nameof(DestructibleView),
+                DestructibleSource = view,
             };
         }
 

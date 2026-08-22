@@ -65,6 +65,26 @@ namespace LastSwing
         /// <summary>Set once a hit has landed on the current target.</summary>
         private bool armed;
 
+        /// <summary>
+        /// The rock/ore behind <see cref="current"/>, if any - kept so a killing blow can still
+        /// be detected once the object drops off the grid.
+        ///
+        /// <b>Rocks need this; trees don't.</b> A tree's own <c>ChopTreeGridComponent</c> stays
+        /// resolvable through <c>SwingTarget.Find</c> for a poll or two after the killing swing,
+        /// so letting <see cref="Poll"/> draw its Remaining-hits-0 frame before releasing is
+        /// enough. Decompiling <c>DestructibleView.Hit()</c> shows a rock has no such window:
+        /// the same call that lands the killing blow also unregisters it from the grid, so by
+        /// our next 50ms poll <c>SwingTarget.Find</c> already returns null and
+        /// <c>DamageReader.Read</c> is never reached at all - there is no frame left where a
+        /// live poll would ever see <c>Remaining == 0</c>.
+        ///
+        /// Holding the component reference directly sidesteps the grid lookup entirely: a
+        /// destroyed rock's <c>DestructibleView</c> still exists as a plain C# object for about
+        /// a second afterwards (see <c>DestroyAsGridObject(1f, ...)</c>), so <c>IsDestructed</c>
+        /// can still be read off it after the game has stopped offering it as a target.
+        /// </summary>
+        private DestructibleView pendingDestructibleCheck;
+
         private Camera cachedCamera;
         private bool warnedNoCamera;
         private bool loggedFirstTarget;
@@ -179,17 +199,18 @@ namespace LastSwing
 
             if (interactable == null || (LastSwingPlugin.RequireInRange.Value && !inRange))
             {
-                Release();
+                HandleLoss();
                 return;
             }
 
             var target = DamageReader.Read(interactable);
             if (target == null || !target.IsUsable)
             {
-                Release();
+                HandleLoss();
                 return;
             }
 
+            pendingDestructibleCheck = target.DestructibleSource;
             TrackArming(target);
 
             // "Actively attacking" in its strict sense: aiming is not attacking. Note this is
@@ -202,13 +223,12 @@ namespace LastSwing
                 return;
             }
 
-            if (target.Remaining <= 0)
-            {
-                // Already at or past its threshold and waiting on the destroy animation or a
-                // grow-stage check. A full-looking bar here would be a lie.
-                Release();
-                return;
-            }
+            // Note: deliberately not releasing here when target.Remaining <= 0. The object
+            // often survives a poll or two past its killing blow - waiting on a destroy
+            // animation or a grow-stage check - and if we bail out before drawing, the last
+            // frame the player ever sees is the one-hit-remaining state from the previous
+            // poll. Letting this draw shows the bar actually reach empty; the next poll picks
+            // up the object's disappearance and starts the normal linger/fade from there.
 
             if (!loggedFirstTarget && LastSwingPlugin.VerboseLogging.Value)
             {
@@ -255,6 +275,48 @@ namespace LastSwing
                 // something else. Either way the old baseline describes a different situation.
                 baselineDamage = target.Damage;
             }
+        }
+
+        /// <summary>
+        /// Entry point for every way <see cref="Poll"/> can lose its target: aimed away, walked
+        /// out of range, or the object is simply gone.
+        ///
+        /// Rocks are gone from <c>SwingTarget.Find</c>'s perspective before the bar ever gets a
+        /// live poll at <c>Remaining == 0</c> - see <see cref="pendingDestructibleCheck"/>. If
+        /// the object we were just showing turns out to have been destroyed, draw it emptied one
+        /// last time before releasing, so the bar visibly reaches zero instead of freezing on
+        /// whatever hit count was left over from the last real poll.
+        /// </summary>
+        private void HandleLoss()
+        {
+            if (current != null && pendingDestructibleCheck != null && pendingDestructibleCheck.IsDestructed)
+            {
+                DrawEmptied(current);
+            }
+
+            pendingDestructibleCheck = null;
+            Release();
+        }
+
+        /// <summary>
+        /// Redraws <paramref name="previous"/> as fully spent, ignoring whatever damage value it
+        /// actually carried - the point is showing the bar reach zero, not reproducing the exact
+        /// number that never got read live.
+        /// </summary>
+        private void DrawEmptied(DamageReader.Target previous)
+        {
+            var synthetic = new DamageReader.Target
+            {
+                Anchor = previous.Anchor,
+                Damage = previous.Threshold,
+                Threshold = previous.Threshold,
+                Kind = previous.Kind,
+            };
+
+            EnsureUi();
+            Draw(synthetic, canDamage: true);
+            canvas.gameObject.SetActive(true);
+            lastAnchor = previous.Anchor;
         }
 
         /// <summary>
