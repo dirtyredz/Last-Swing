@@ -46,8 +46,27 @@ namespace LastSwing
         /// <summary>Whether the canvas exists and is currently shown.</summary>
         internal bool IsActive => canvas != null && canvas.gameObject.activeSelf;
 
-        /// <summary>Show or hide the built canvas. A show is only ever called after <see cref="EnsureUi"/>.</summary>
-        internal void SetActive(bool active)
+        /// <summary>
+        /// Build (if needed), draw <paramref name="target"/>, and reveal the bar — the one
+        /// operation the controller ever needs to show something. Keeping build-then-draw-then-
+        /// reveal inside the view means the ordering contract can't be got wrong at a call site:
+        /// <see cref="Draw"/> writes straight to the built objects and would throw if it ran
+        /// before <see cref="EnsureUi"/>.
+        /// </summary>
+        internal void Show(Transform parent, DamageReader.Target target, bool canDamage)
+        {
+            EnsureUi(parent);
+            Draw(target, canDamage);
+            SetActive(true);
+        }
+
+        /// <summary>Hide the bar. Safe before the canvas is built (a no-op then).</summary>
+        internal void Hide()
+        {
+            SetActive(false);
+        }
+
+        private void SetActive(bool active)
         {
             if (canvas != null)
             {
@@ -95,7 +114,7 @@ namespace LastSwing
             plateRect.position = screenPoint;
         }
 
-        internal void Draw(DamageReader.Target target, bool canDamage)
+        private void Draw(DamageReader.Target target, bool canDamage)
         {
             var width = Mathf.Max(24f, LastSwingPlugin.BarWidth.Value);
             var height = Mathf.Max(4f, LastSwingPlugin.BarHeight.Value);
@@ -336,7 +355,7 @@ namespace LastSwing
         /// <paramref name="parent"/> (the driving component's transform) and kept across scene
         /// loads. Starts hidden; <see cref="SetActive"/> reveals it.
         /// </summary>
-        internal void EnsureUi(Transform parent)
+        private void EnsureUi(Transform parent)
         {
             if (canvas != null)
             {

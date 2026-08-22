@@ -216,9 +216,7 @@ namespace LastSwing
             lastAnchor = target.Anchor;
             hideAtTime = 0f;
 
-            view.EnsureUi(transform);
-            view.Draw(target, SwingTarget.CanDamage(interactable));
-            view.SetActive(true);
+            view.Show(transform, target, SwingTarget.CanDamage(interactable));
         }
 
         /// <summary>
@@ -287,9 +285,7 @@ namespace LastSwing
                 Kind = previous.Kind,
             };
 
-            view.EnsureUi(transform);
-            view.Draw(synthetic, canDamage: true);
-            view.SetActive(true);
+            view.Show(transform, synthetic, canDamage: true);
             lastAnchor = previous.Anchor;
         }
 
@@ -334,7 +330,7 @@ namespace LastSwing
             armedAnchor = null;
             armed = false;
 
-            view.SetActive(false);
+            view.Hide();
         }
 
         private void Reposition()

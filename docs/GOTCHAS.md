@@ -40,7 +40,7 @@ Map form here so a future session sees them before stepping on one.
 
 - **`Camera.main` is null in this game.** The gameplay camera isn't tagged `MainCamera`
   (normal for Cinemachine). Fall back to the highest-depth active on-screen camera in
-  `Camera.allCameras`. (`HealthBar.ResolveCamera`)
+  `Camera.allCameras`. (`HealthBarView.ResolveCamera`)
 
 - **Reflection health fields, logged once.** Three of the four health values are private
   `ItemParameterRef<int>`; a cached `FieldInfo` per type reaches them (`GetValue` itself is public
