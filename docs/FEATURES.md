@@ -16,8 +16,9 @@ Capability inventory. Status: ✅ shipped · 🚧 WIP (committed, unreleased) ·
 | Linger + fade on target loss | ✅ | `LingerSeconds` (1.5) stops strobing as the target flickers mid-turn. |
 | Fully configurable (Mod Menu / ConfigurationManager) | ✅ | ~17 settings, re-read every draw (live tuning). No hotkey by design. |
 | Read-only / save-safe | ✅ | No `FindOrCreate` anywhere; verified by save diff. |
-| Detect killing blows on rocks/ore after they leave the grid | ✅ verified | Owner-tested in game 2026-08-22 ("all good"). Committed on top of live 1.0.0 (`pendingDestructibleCheck`); ready for a 1.0.1 release when desired — not yet published. |
+| Detect killing blows on rocks/ore after they leave the grid | ✅ | Shipped in 1.0.1 (`pendingDestructibleCheck`). Owner-tested in game 2026-08-22 ("all good"). |
 | Migrate to `GameWorldUIScreen` world-UI | 💡 | Blocked on verifying re-projection frequency. See [DECISIONS](DECISIONS.md) ADR-003. |
 | Ethereal-tool support | 💡 | Only if ethereal tools don't route through `SwingToolView`. See [BACKLOG](BACKLOG.md). |
 
-**Released:** v1.0.0 on Nexus ([mod 122](https://www.nexusmods.com/moonlightpeaks/mods/122)).
+**Released:** v1.0.1 on Nexus ([mod 122](https://www.nexusmods.com/moonlightpeaks/mods/122)) — the
+rock/ore killing-blow fix. v1.0.0 was the first release.

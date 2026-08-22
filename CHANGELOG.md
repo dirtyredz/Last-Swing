@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.1 — 2026-08-22
+
+**Fix: the health bar now reaches empty on the killing blow to a rock or ore node.**
+
+Landing the final swing on a rock or ore node unregisters it from the grid in the same call that
+applies the killing damage, so the game stopped offering it as a swing target before the bar could
+draw its last, emptied frame — the bar simply blinked out on one-hit-remaining instead of visibly
+reaching zero. The mod now holds the `DestructibleView` by reference and, when the target is lost,
+checks `IsDestructed` directly to draw one final emptied frame before releasing. Trees, small trees
+and stumps were unaffected (they stay resolvable for a poll or two after the killing blow) and are
+unchanged. Verified in game.
+
+No other behaviour changes; the rest of the work since 1.0.0 was an internal split of `HealthBar`
+into a controller and a view, with no player-visible effect.
+
 ## 1.0.0 — 2026-08-04
 
 First release. **The `TESTING.md` checklist has been worked through in game and passes**,
