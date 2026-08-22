@@ -400,12 +400,7 @@ namespace LastSwing
                 // left so it empties toward the right, the direction every meter in every game
                 // empties, rather than shrinking about its centre.
                 var fraction = Mathf.Clamp01(target.Remaining / (float)target.Threshold);
-                var rect = segments[0].rectTransform;
-                rect.anchorMin = new Vector2(0f, 0.5f);
-                rect.anchorMax = new Vector2(0f, 0.5f);
-                rect.pivot = new Vector2(0f, 0.5f);
-                rect.anchoredPosition = Vector2.zero;
-                rect.sizeDelta = new Vector2(width * fraction, height);
+                PlaceSegment(segments[0].rectTransform, 0f, width * fraction, height);
                 segments[0].color = remainingColour;
             }
             else
@@ -414,12 +409,8 @@ namespace LastSwing
 
                 for (var i = 0; i < count; i++)
                 {
-                    var rect = segments[i].rectTransform;
-                    rect.anchorMin = new Vector2(0f, 0.5f);
-                    rect.anchorMax = new Vector2(0f, 0.5f);
-                    rect.pivot = new Vector2(0f, 0.5f);
-                    rect.anchoredPosition = new Vector2(i * (segmentWidth + SegmentGap), 0f);
-                    rect.sizeDelta = new Vector2(segmentWidth, height);
+                    PlaceSegment(
+                        segments[i].rectTransform, i * (segmentWidth + SegmentGap), segmentWidth, height);
 
                     // Segments empty left to right, so the leftmost ones go first.
                     var isSpent = i < spent;
@@ -531,6 +522,21 @@ namespace LastSwing
             {
                 label.fontSize = LastSwingPlugin.LabelFontSize.Value;
             }
+        }
+
+        /// <summary>
+        /// Lay a segment out relative to the track's <b>left edge</b>: left-anchored so x counts
+        /// rightward from 0 with no half-width offset of its own, and vertically centred. Both
+        /// fill modes place segments the same way — only the x offset and width differ — so the
+        /// anchoring lives here rather than being repeated per branch in <see cref="Draw"/>.
+        /// </summary>
+        private static void PlaceSegment(RectTransform rect, float x, float width, float height)
+        {
+            rect.anchorMin = new Vector2(0f, 0.5f);
+            rect.anchorMax = new Vector2(0f, 0.5f);
+            rect.pivot = new Vector2(0f, 0.5f);
+            rect.anchoredPosition = new Vector2(x, 0f);
+            rect.sizeDelta = new Vector2(width, height);
         }
 
         private void EnsureSegments(int count)
