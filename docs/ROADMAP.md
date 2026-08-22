@@ -3,11 +3,12 @@
 The mod is **shipped and stable** (v1.0.0 on Nexus). There is no active development push; work is
 opportunistic. Phases below are "if/when", not scheduled.
 
-## Now — stabilize the WIP
+## Now — release the verified WIP
 
-- **Finish + verify the rocks-after-grid killing-blow feature** (committed WIP on top of 1.0.0).
-  Re-run the [`TESTING.md`](../TESTING.md) killing-blow checklist for rocks/ore, then decide on a
-  1.0.1 release. Do **not** publish until verified in game.
+- ✅ **Rocks-after-grid killing-blow feature verified in game** (owner, 2026-08-22).
+- **Decide on a 1.0.1 release** of the verified feature: bump `<Version>` in the csproj, update
+  CHANGELOG, `pack.ps1`, and publish via the nexus-publish skill. (Optional: fold in the P2
+  `DestructibleSource` de-leak first — see [BACKLOG](BACKLOG.md).)
 
 ## Next — structural
 

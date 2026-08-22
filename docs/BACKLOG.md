@@ -16,9 +16,9 @@ _None open._ (The `HealthBar` controller/view split — the standing P1 — is d
 
 - **De-leak `Target.DestructibleSource`.** Replace the exposed `DestructibleView` with a semantic
   property (e.g. `HasBecomeDestructed`) and have the view take a `forceEmpty` render flag instead of
-  `HealthBar` synthesizing a mutable `Target`. **Held:** reviewers split on whether it's a real
-  leak, and it touches the rock/ore kill-frame path — subtle, under WIP, and unverifiable without a
-  game run. Do it when that WIP is next verified in game, and re-run the killing-blow checklist.
+  `HealthBar` synthesizing a mutable `Target`. **Now unblocked** — the kill-frame WIP was verified
+  in game 2026-08-22 (owner: "all good"). Reviewers were split on whether it's a real leak, so it's
+  optional polish, not a fix; if taken, re-run the killing-blow checklist afterward.
 - **Fold `GameFonts.Search`'s 3 name-search loops** into a `FindByName<T>` helper. Blocked on the
   cross-mod sync: `GameFonts.cs` is a verbatim copy shared with Chest Labels / Plant Peek, so the
   fix belongs in the workspace canonical + all copies, not here alone.
